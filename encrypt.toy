@@ -1,0 +1,149 @@
+program encryption
+// For the encryption part, the program stores the input words
+// in the ram from the address [AA] and generate random keys 
+// that stores from [BB], the encrypted words are stored from
+// [CC].
+// For the decryption part, the program stores the input words
+// in the ram from address [AA] and stores input keys from [BB],
+// then it stores the decrypted words from [CC].
+// -----------------------------------------------------------------------------
+
+function main
+// Check the first number of input and determine whether to
+// encrypt or decrypt
+10: 82FF    Register R2 = R0
+11: 7388    Register R3 = 88
+12: B203    Set ram[88] = R2
+13: 84FF    Register R4 = n
+14: 7599    Register R5 = 99
+15: B405    Set ram[99] = R4
+16: D218    If R2 > 0, jump to line 18 and start to encryption
+17: C254    If R2 = 0, jump to line 54 and start to decryption
+
+// Store n words of message
+function encryptStoreWords
+18: 7101    R1 = 1
+19: 781B    R8 = 1B, for jumping to line R8
+1A: 77AA    Register R7 = AA
+1B: C421    for test, If R4 = 0, that means we store the n words
+1C: 86FF    Register R6 = word
+1D: B607    Set ram[AA] = R6, which is the word
+1E: 2441    R4 = R4 - R1, while R1 is always 1
+1F: 1771    R7 = R7 + 1
+20: E800    Jump back to line 1B if not done
+
+// Generate and store n random keys
+function encryptStoreRandomKeys
+21: A203    R2 = ram[88],read the value of R0
+22: 7926    R9 = 27, for jumping to line 27
+23: 7B04    R11 = 4, for left shift
+24: 7CBB    R12 = BB, for store the key
+25: A405    R4 = ram[99], read the value of n
+26: 1A20    R10 = R2 + 0
+27: C430    for test, If R4 = 0, that means we store the n keys
+28: 5AAB    Left shift R10 to left by 4
+29: 1AA2    R10 = R10 + R2, aR part of the random
+2A: 1AA1    R10 = R10 + 1, plus the c, this is one random key
+2B: BA0C    Set ram[BB] = R10
+2C: 12A0    R2 = R10 + 0, set the new key
+2D: 1CC1    R12 = R12 + 1
+2E: 2441    R4 = R4 - 1
+2F: E900    Jump to line 26
+
+// Encrypt and store n new words
+function wordsXorKeys
+30: A405    R4 = ram[99], read the value of R4
+31: 7D35    R13 = 35, for jumping
+32: 7ECC    R14 = CC
+33: 77AA    R7 = AA
+34: 7CBB    R12 = BB
+35: C43F    If R4 = 0, jump to line XX
+36: A607    R6 = ram[AA]
+37: AA0C    R10 = ram[BB]
+38: 4F6A    R15 = R6 xor R10
+39: BF0E    Set ram[CC] = R15
+3A: 1EE1    R14 = R14 + 1
+3B: 1771    R7 = R7 + 1
+3C: 1CC1    R12 = R12 + 1
+3D: 2441    R4 = R4 - 1
+3E: ED00    Jump to line 35
+
+// Output the result of encryption
+function outputEncrypt
+3F: 90FF    Output 0
+40: A405    R4 = ram[99], read the value of R4
+41: 94FF    Output n
+42: 7CBB    R12 = BB
+43: 7944    R9 = 44, for jumping
+44: C44A    If R4 = 4A, jump to line
+45: AD0C    R13 = ram[BB]
+46: 9DFF    Output key
+47: 1CC1    R12 = R12 + 1
+48: 2441    R4 = R4 - 1
+49: E900    Jump back to line 44 if not done
+4A: 7ECC    R14 = CC
+4B: 784D    R8 = 4C, for jumping
+4C: A405    Reset R4 to n
+4D: C453    If R4 = 0, jump to line XX
+4E: AF0E    R15 = ram[CC]
+4F: 9FFF    Output R15
+50: 1EE1    R14 = R14 + 1
+51: 2441    R4 = R4 - 1
+52: E800    Jump back to line 4C if not done
+53: 0000    halt
+
+// Store n words of message
+function decryptStoreWords
+54: 7101    R1 = 1
+55: 7857    R8 = 57, for jumping
+56: 77AA    Register R7 = AA
+57: C45D    If R4 = 0, that means we store the n words
+58: 86FF    Register R6 = word
+59: B607    Set ram[AA] = R6, which is the word
+5A: 2441    R4 = R4 - 1
+5B: 1771    R7 = R7 + 1
+5C: E800    Jump back to line 57 if not done
+
+// Store n keys
+function decryptStoreKeys
+5D: A405    R4 = ram[99], read the value of R4
+5E: 7A60    R10 = 60, for jumping
+5F: 79BB    R9 = BB
+60: C466    If R4 = 0, that means we store the n keys
+61: 86FF    Register R6 = key
+62: B609    Set ram[BB] = R6, which is the key
+63: 2441    R4 = R4 - 1
+64: 1991    R9 = R9 + 1
+65: EA00    Jump back to line 60 if not done
+
+// Decrypt and store the words
+function decryptGenerate
+66: A405    R4 = ram[99], read the value of n
+67: 7A6B    R11 = 6B, for jumping
+68: 77AA    R7 = AA
+69: 79BB    R9 = BB
+6A: 7CCC    R12 = CC
+6B: C475    If R4 = 0, jump to line XX
+6C: A607    R6 = ram[AA]
+6D: AB09    R11 = ram[BB]
+6E: 486B    R8 = R6 xor R11
+6F: B80C    Set ram[CC] = R8, which is the decrypted word
+70: 1771    R7 = R7 + 1
+71: 1991    R9 = R9 + 1
+72: 1CC1    R12 = R12 + 1
+73: 2441    R4 = R4 - 1
+74: EA00    Junp back to line 6B if not done
+
+// Output the result of decryption
+function outputDecrypt
+75: A405    R4 = ram[99], read the value of n
+76: 94FF    Output n
+77: 7CCC    R12 = CC
+78: 7878    R8 = 79, for jumping
+79: C47F    If R4 = 0, that means output finished
+7A: AF0C    Set R8 = ram[CC], output the decrypted word
+7B: 9FFF    Output words after decrypted
+7C: 1CC1    R12 = R12 + 1
+7D: 2441    R4 = R4 - 1
+7E: E800    Jump back to line 79 if not done
+7F: 0000
